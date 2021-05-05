@@ -2,31 +2,57 @@
 
 import time
 import os
+import html
 
+docHtml=html.Html()
 # Dibuja las torres.
 def dibujarTorres():
-    for fila in torres:
-        for col in fila:
-            if col == 0:
-                print("            |            ", end="")
-            elif col == 1:
-                print("          [#1#]          ", end="")
-            elif col == 2:
-                print("         [##2##]         ", end="")
-            elif col == 3:
-                print("        [###3###]        ", end="")
-            elif col == 4:
-                print("       [####4####]       ", end="")
-            elif col == 5:
-                print("      [#####5#####]      ", end="")
-            elif col == 6:
-                print("     [######6######]     ", end="")
-            elif col == 7:
-                print("    [#######7#######]    ", end="")
-        print()
-    print("="*77)
-    print("            1                        2                        3            ")
-    time.sleep(1)
+    global docHtml
+    for x in range(len(torres)):
+        if x == 0:
+            espaciox=0
+            espacioy=0
+            espacioz=0
+            for k in range(len(torres)):
+                for j in range(len(torres[k])):
+                    if j==0:
+                        if torres[k][j]!=0:
+                            espaciox=espaciox+1
+                    elif j==1:
+                        if torres[k][j]!=0:
+                            espacioy=espacioy+1
+                    elif j==2:
+                        if torres[k][j]!=0:
+                            espacioz=espacioz+1
+            espacio = (7 * 20) - (len(torres[x]) * 20)
+            docHtml.colx += """<div id="nube"></div>\n\t<div id="torres">\n\t<div id="t1" class="contenidoTorre">\n\t<div style='height:""" + str((7 * 20) - (espaciox * 20)) + """px'></div>\n"""
+            docHtml.coly += """\n\t<div id="t2" class="contenidoTorre">\n\t<div style='height:""" + str((7 * 20) - (espacioy * 20)) + """px'></div>\n"""
+            docHtml.colz += """\n\t<div id="t3" class="contenidoTorre">\n\t<div style='height:""" + str((7 * 20) - (espacioz * 20)) + """px'></div>\n"""
+        for y in range(len(torres[x])):
+
+            if y==0:
+                if torres[x][y]!=0:
+                    ancho=(torres[x][y]*20)+10
+                    docHtml.colx+="""\t<div id='"""+str(x)+str(y)+"""' class='ficha' style='width:"""+str(ancho)+"""px'></div>\n"""
+            elif y==1:
+                if torres[x][y]!=0:
+                    ancho=(torres[x][y]*20)+10
+                    docHtml.coly+="""\t<div id='"""+str(x)+str(y)+"""' class='ficha' style='width:"""+str(ancho)+"""px'></div>\n"""
+            elif y==2:
+                if torres[x][y]!=0:
+                    ancho=(torres[x][y]*20)+10
+                    docHtml.colz+="""\t<div id='"""+str(x)+str(y)+"""' class='ficha' style='width:"""+str(ancho)+"""px'></div>\n"""
+            if x==(len(torres)-1) and y==2:
+                docHtml.colx+="""\t</div>"""
+                docHtml.coly+="""\t</div>"""
+                docHtml.colz+="""\t</div>\n\t</div><br><br>"""
+                docHtml.contenido+=docHtml.colx+docHtml.coly+docHtml.colz
+                docHtml.colx=""
+                docHtml.coly=""
+                docHtml.colz=""
+
+
+
 
 # Nos devuelve el disco de arriba de la columna col, sino devuelve 0.
 
@@ -68,9 +94,11 @@ def hanoiGrafico(n,origen=1, auxiliar=2, destino=3):
         disco = buscarDiscoArriba(origen-1)
         eliminarDiscoArriba(origen-1)
         torres[buscarEspacioArriba(destino-1)][destino-1] = disco
-        print("*"*77)
-        print("\n"*5)
-        print("Se mueve el disco %d de torre %d a la torre %d" %(n, origen, destino))
+        # print("*"*77)
+        # print("\n"*5)
+        # print("Se mueve el disco %d de torre %d a la torre %d" %(n, origen, destino))
+        paso="Se mueve el disco "+str(n)+" de torre "+str(origen)+" a la torre "+str(destino)
+        docHtml.contenido+="""\n\t<center><h3>"""+paso+"""</h3></center>"""
         dibujarTorres()
         # n-1 discos de la torre auxiliar a la torre final.
         hanoiGrafico(n-1,auxiliar, origen, destino)
@@ -103,5 +131,7 @@ if discos > 0 and discos < 8:
         torres = [[0, 0, 0], [1, 0, 0], [2, 0, 0], [3, 0, 0],[4, 0, 0], [5, 0, 0], [6, 0, 0], [7, 0, 0]]
     dibujarTorres()
     hanoiGrafico(discos)
+    docHtml.generarHeader()
+    docHtml.generarSolucion()
 else:
     print("\nERROR! Solo se permiten de 1 a 7 discos para el modo grafico.")
